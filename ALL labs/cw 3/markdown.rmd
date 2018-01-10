@@ -1,0 +1,23 @@
+---
+title: "classwork 3"
+output: html_document
+---
+
+Загрузите данные о землетрясениях
+
+```{r}
+anss <- readLines("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2017/master/data/earthquakes_2011.html", warn = FALSE)
+```
+
+Выберите строки, которые содержат данные с помощью регулярных выражений и функции grep
+
+```{r}
+pattern.seismo.stats <- "\\d{4}(\\/\\d{2}){2}\\s(\\d{2}:){2}\\d{2}\\.\\d{2}(,[^,]*){10},\\d*"
+anss.isdata <- grepl(pattern = pattern.seismo.stats, x = anss)
+seismo.stats.data <- regmatches(anss, regexpr(pattern = pattern.seismo.stats, text = anss))
+```
+
+Проверьте что все строки (_all.equal_) в результирующем векторе подходят под шаблон.
+```{r}
+all.equal(anss[which(anss.isdata)], seismo.stats.data)
+```

@@ -1,0 +1,127 @@
+﻿---
+title: "Лабораторная работа №3"
+output: html_document
+---
+
+# Задание 1
+
+Используйте команду readLines для загрузки файла в текстовый вектор html
+
+```{r}
+forbes <- readLines("https://raw.githubusercontent.com/SergeyMirvoda/MD-DA-2017/master/data/forbes.htm")
+```
+
+Сколько строк в файле?
+
+```{r}
+length(forbes)
+```
+
+Сколько символов в файле?
+
+```{r}
+sum(nchar(forbes))
+```
+
+Напишите шаблон регулярного выражения и используйте функцию grep, чтобы извлечь размер дохода из данных в векторе html. 
+Удостоверьтесь, что полученный вектор номеров строк содержит содержит ровно 100 записей
+
+```{r}
+patterns.profit <- "[$][,0-9]+ [BM]"
+forbes.isprofit <- grep(patterns.profit, forbes)
+
+length(forbes.isprofit) == 100
+```
+
+Напишите код, использовав регулярное выражение из п. 3, и функции regexp и regmatches, чтобы извлечь все данные о доходе
+
+```{r}
+forbes.profits <- regmatches(forbes, regexpr(patterns.profit, forbes))
+```
+
+Должно быть ровно сто значений
+
+```{r}
+length(forbes.profits) == 100
+```
+
+Самый большой доход должен быть доход Билла Гейтса
+
+Такой доход должен быть в списке один раз.
+
+В всписке должна быть цифра, которую мы запомнили для Ларри Эллисона.
+
+Должно быть как минимум два значения, встречающихся несколько раз.
+
+```{r}
+forbes.profits.stats <- table(forbes.profits)
+as.data.frame(forbes.profits.stats)
+```
+
+# Задание 2
+
+В данных доход представлен в формате "$42 B", что означает 42 × 10^9. Преобразуйте этот формат в числовой и сохраните в вектор worths. 
+
+```{r}
+M <- 10 ** 9
+forbes.profits.locale <- gsub(",", "\\.", forbes.profits)
+worths <- as.double(regmatches(forbes.profits.locale, regexpr("[0-9.]+", forbes.profits.locale))) * M
+```
+
+worths является вектором и в нём сто занчений типа double.
+
+Все элементы вектора worths больше 1 миллиарда.
+
+Самое большое число это доход Билла Гейтса.
+
+```{r}
+length(worths) == 100
+typeof(worths) == "double"
+all(worths > 1 * M)
+as.data.frame(head(worths))
+```
+
+Какова медиана ста этих записей?
+
+```{r}
+median(worths)
+```
+
+Средний доход?
+
+```{r}
+mean(worths)
+```
+
+Как много людей из этого списка имеют доход больше 5млрд., 10, 25?
+
+```{r}
+length(worths[which(worths > 5 * M)])
+length(worths[which(worths > 10 * M)])
+length(worths[which(worths > 25 * M)])
+```
+
+Какой их общий доход?
+
+```{r}
+sum(worths)
+```
+
+Какую долю от общего дохода, составляет пятёрка самых богатых.
+
+```{r}
+sum(worths[1:5]) * 100 / sum(worths)
+```
+
+Какую долю от общего дохода, составляют 20 самых богатых.
+
+```{r}
+sum(worths[1:20]) * 100 / sum(worths)
+```
+
+В данных федерального резерва США найдите показатель дохода всех домохозяйств (Household net worth) в соответвующем году, какую долю общего дохода составляют 100 богатейших людей.
+
+```{r}
+Household_net_worth <- 96.196 * M
+Household_net_worth * 100 / sum(worths)
+```
